@@ -70,17 +70,33 @@ public class QuerydslBasicTest {
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
+//    @Test
+//    public void startQuerydsl() {
+//        // member1을 찾아라.
+//        QMember m = new QMember("m");
+//
+//        Member findMember = queryFactory
+//                .select(m)
+//                .from(m)
+//                .where(m.username.eq("member1")) // 파라미터 바인딩 처리
+//                .fetchOne();
+//
+//        assertThat(findMember.getUsername()).isEqualTo("member1");
+//    }
+
     @Test
     public void startQuerydsl() {
-        // member1을 찾아라.
-        QMember m = new QMember("m");
+
+//        QMember m = new QMember("m");
+        // 같은 테이블을 조인해야 하는 경우는 위처럼 alias를 다르게 지정하면 된다. 평소에는 쓸 일이 거의 없다.
 
         Member findMember = queryFactory
-                .select(m)
-                .from(m)
-                .where(m.username.eq("member1")) // 파라미터 바인딩 처리
+                .select(member)
+                .from(member)
+                .where(member.username.eq("member1"))
                 .fetchOne();
 
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
+
 }
