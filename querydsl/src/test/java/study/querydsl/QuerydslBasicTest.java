@@ -17,6 +17,7 @@ import jakarta.persistence.PersistenceUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 import study.querydsl.dto.MemberDto;
 import study.querydsl.dto.QMemberDto;
@@ -783,5 +784,68 @@ public class QuerydslBasicTest {
     }
     // null 체크는 주의해서 처리해야 함.
 
+    //===================================
+    // 수정, 삭제 벌크 연산
+
+    @Test
+    public void bulkUpdate() {
+        // 쿼리 한번으로 대량 데이터 수정
+
+        // member1 = 10 -> DB member1
+        // member2 = 20 -> DB member2
+        // member3 = 30 -> DB member3
+        // member4 = 40 -> DB member4
+
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+
+        em.flush();
+        em.clear();
+        // member1 = 10 -> DB 비회원
+        // member2 = 20 -> DB 비회원
+        // member3 = 30 -> DB member3
+        // member4 = 40 -> DB member4
+
+        // update 구문은 영속성 컨텍스트를 그대로 놔두고 db에 값을 직접 넣기 때문에
+        // 영속성 컨텍스트와 db의 값이 다르다는 점에서 문제가 있을 수 있다.
+
+        // 예를 들어
+        List<Member> result = queryFactory.selectFrom(member).fetch();
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+        // 다음 연산을 수행하면 db에서 id가 1인 값을 가벼왔지만("비회원")
+        // 영속성 컨텍스트에 id가 1인 값이 (member1) 이 들어있기 때문에
+        // 결과 "member1"이 반환된다.
+
+        // 이 문제를 해결하려면 벌크 연산 실행 후 항상 em.flush(); em.clear()로
+        // 영속성 컨텍스트를 초기화한다.
+
+
+    }
+
+    @Test
+    public void bulkAdd() {
+        // 기존 숫자에 1 더하기
+        long count1 = queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    @Test
+    public void bulkDelete() {
+        // 쿼리 한번으로 대량 데이터 삭제
+        long count2 = queryFactory
+                .delete(member)
+                .where(member.age.gt(18))
+                .execute();
+
+    }
+    // 주의 : JQPL 배치와 마찬가지로, 영속성 컨텍스트에 있는 엔티티를 무시하고 실행되기 때문에
+    // 배치 쿼리를 실행하고 나면 영속성 컨텍스트를 초기화하는 것이 안전하다.
 
 }
