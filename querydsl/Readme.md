@@ -1,3 +1,5 @@
+[실전! Querydsl 강의링크](https://www.inflearn.com/course/querydsl-%EC%8B%A4%EC%A0%84/dashboard)
+
 ### JPQL이 제공하는 모든 검색 조건
 ```java
 member.username.eq("member1") // username = 'member1'
