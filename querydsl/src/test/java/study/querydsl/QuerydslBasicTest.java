@@ -1,5 +1,6 @@
 package study.querydsl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.ExpressionUtils;
@@ -147,9 +148,9 @@ public class QuerydslBasicTest {
         QueryResults<Member> results = queryFactory
                 .selectFrom(member)
                 .fetchResults(); // deprecated
-        
+
         results.getTotal();
-        List<Member> content= results.getResults();
+        List<Member> content = results.getResults();
 
         // count 쿼리로 변경
         long count = queryFactory
@@ -157,11 +158,12 @@ public class QuerydslBasicTest {
                 .fetchCount(); // deprecated
 
         //deprecated -> fetch() 사용 권장
-        
+
     }
 
 
     // --- 정렬
+
     /**
      * 회원 정렬 순서
      * 1. 회원 나이 내림차순(desc)
@@ -221,14 +223,15 @@ public class QuerydslBasicTest {
 
     // 집합
     // 집합 함수
+
     /**
      * JPQL
      * select
-     *      COUNT(m), // 회원수
-     *      SUM(m.age), // 나이 합
-     *      AVG(m.age), // 평균 나이
-     *      MAX(m.age), // 최대 나이
-     *      MIN(m.age) // 최소 나이
+     * COUNT(m), // 회원수
+     * SUM(m.age), // 나이 합
+     * AVG(m.age), // 평균 나이
+     * MAX(m.age), // 최대 나이
+     * MIN(m.age) // 최소 나이
      * from Member m
      */
     @Test
@@ -251,6 +254,7 @@ public class QuerydslBasicTest {
     }
 
     // ---GroupBy 사용
+
     /**
      * 팀의 이름과 각 팀의 평균 연령을 구해라.
      */
@@ -302,6 +306,7 @@ public class QuerydslBasicTest {
 
     // 세타 조인
     // 연관관계가 없는 필드로 조인
+
     /**
      * 세타 조인(연관관계가 없는 필드로 조인)
      */
@@ -347,6 +352,7 @@ public class QuerydslBasicTest {
 
     // 2. 연관관계 없는 엔티티 외부 조인
     // 예) 회원의 이름과 팀의 이름이 같은 대상 외부 조인
+
     /**
      * 2. 연관관계 없는 엔티티 외부 조인
      * 예) 회원의 이름과 팀의 이름이 같은 대상 외부 조인
@@ -375,7 +381,7 @@ public class QuerydslBasicTest {
     EntityManagerFactory emf;
 
     @Test
-    public void fetchJoinNo() throws Exception{
+    public void fetchJoinNo() throws Exception {
         em.flush();
         em.clear();
 
@@ -407,6 +413,7 @@ public class QuerydslBasicTest {
 
     // ---- 서브 쿼리
     // 서브 쿼리 eq 사용
+
     /**
      * 나이가 가장 많은 회원 조회
      */
@@ -428,6 +435,7 @@ public class QuerydslBasicTest {
     }
 
     // 서브 쿼리 goe 사용
+
     /**
      * 나이가 평균 나이 이상인 회원
      */
@@ -508,8 +516,9 @@ public class QuerydslBasicTest {
             System.out.println("s = " + s);
         }
     }
-        @Test
-        public void complexCase() throws Exception {
+
+    @Test
+    public void complexCase() throws Exception {
         // 복잡한 조건
         List<String> result = queryFactory
                 .select(new CaseBuilder()
@@ -519,11 +528,10 @@ public class QuerydslBasicTest {
                 .from(member)
                 .fetch();
 
-            for (String s : result) {
-                System.out.println("s = " + s);
-            }
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
     }
-
 
 
     // 상수, 문자 더하기
@@ -540,6 +548,7 @@ public class QuerydslBasicTest {
             System.out.println("tuple = " + tuple);
         }
     }
+
     // 문자 더하기 concat
     @Test
     public void concat() throws Exception {
@@ -663,8 +672,8 @@ public class QuerydslBasicTest {
 
                         ExpressionUtils.as(
                                 JPAExpressions
-                                .select(memberSub.age.max())
-                                .from(memberSub), "age")
+                                        .select(memberSub.age.max())
+                                        .from(memberSub), "age")
                 ))
                 .from(member)
                 .fetch();
@@ -708,5 +717,35 @@ public class QuerydslBasicTest {
             System.out.println("memberDto = " + memberDto);
         }
     }
+
+    // ==========================================
+    // 동적 쿼리 - BooleanBuilder 사용
+    // 동적 쿼리를 해결하는 두 가지 방식
+    // BooleanBuilder
+    // Where 다중 파라미터 사용
+
+    @Test
+    public void dynamicQuery_BooleanBuilder() throws Exception {
+        String usernameParam = "member1";
+        Integer ageParam = 10;
+
+        List<Member> result = searchMember1(usernameParam, ageParam);
+        assertThat(result.size()).isEqualTo(1);
+    }
+
+    private List<Member> searchMember1(String usernameCond, Integer ageCond) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (usernameCond != null) {
+            builder.and(member.username.eq(usernameCond));
+        }
+        if (ageCond != null) {
+            builder.and(member.age.eq(ageCond));
+        }
+        return queryFactory
+                .selectFrom(member)
+                .where(builder)
+                .fetch();
+    }
+
 
 }
