@@ -95,22 +95,55 @@ public class MemberRepositoryImpl implements MemberRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long total = queryFactory
-                .select(member)
-                .from(member)
-                .leftJoin(member.team, team)
-                .where(usernameEq(condition.getUsername()),
-                        teamNameEq(condition.getTeamName()),
-                        ageLoe(condition.getAgeLoe()),
-                        ageGoe(condition.getAgeGoe()))
-                .fetchCount(); // deprecated
-
-        return new PageImpl<>(content, pageable, total);
+//        long total = queryFactory
+//                .select(member)
+//                .from(member)
+//                .leftJoin(member.team, team)
+//                .where(usernameEq(condition.getUsername()),
+//                        teamNameEq(condition.getTeamName()),
+//                        ageLoe(condition.getAgeLoe()),
+//                        ageGoe(condition.getAgeGoe()))
+//                .fetchCount(); // deprecated
+//
+//        return new PageImpl<>(content, pageable, total);
 
         // 전체 카운트를 조회하는 방법을 최적화할 수 있으면 이렇게 분리하면 된다.
         // (예를 들어서 전체 카운트를 조회할 때 조인 쿼리를 줄일 수 있다면 상당한 효과가 있다.)
         // 코드를 리팩토링해서 내용 쿼리와 전체 카운트 쿼리를 읽기 좋게 분리하면 좋다.
 
+
+        // ----
+        // 스프링 데이터 페이징 활용2 - CountQuery 최적화
+        // PageableExecutionUtils.getPage()로 최적화
+
+//        JPAQuery<Member> countQuery = queryFactory
+//                .select(member)
+//                .from(member)
+//                .leftJoin(member.team, team)
+//                .where(usernameEq(condition.getUsername()),
+//                        teamNameEq(condition.getTeamName()),
+//                        ageLoe(condition.getAgeLoe()),
+//                        ageGoe(condition.getAgeGoe()));
+//
+//        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);
+
+        //- -----
+        // deprecated 된 메서드 제외,
+        // 최신 버전에 맞추어 수정된 예제
+        //
+        JPAQuery<Long> countQuery = queryFactory
+                .select(member.count())
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageLoe(condition.getAgeLoe()),
+                        ageGoe(condition.getAgeGoe()));
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+
+        // 스프링 데이터 라이브러리가 제공
+        // count 쿼리가 생략 가능한 경우 생략해서 처리
     }
 
     private BooleanExpression usernameEq(String username) {
