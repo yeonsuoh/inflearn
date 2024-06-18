@@ -32,3 +32,11 @@ member.username.startsWith("member") // like 'member%' 검색
 * fetchFirst(): limit(1).fetchOne()
 * fetchResults(): 페이징 정보 포함, total count 쿼리 추가 실행
 * fetchCount(): count 쿼리로 변경해서 count 수 조회
+
+---
+## Querydsl Web 지원
+**한계점**
+* 단순한 조건만 가능
+* 조건을 커믓텀하는 기능이 복잡하고 명시적이지 않음
+* 컨트롤러가 Querydsl에 의존
+* 복잡한 실무환경에서 사용하기에는 한계가 명확
