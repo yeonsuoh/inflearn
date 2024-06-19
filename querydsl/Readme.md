@@ -40,3 +40,14 @@ member.username.startsWith("member") // like 'member%' 검색
 * 조건을 커믓텀하는 기능이 복잡하고 명시적이지 않음
 * 컨트롤러가 Querydsl에 의존
 * 복잡한 실무환경에서 사용하기에는 한계가 명확
+
+---
+## 리포지토리 지원 - QuerydslRepositorySupport
+**장점**
+* 스프링 데이터가 제공하는 페이징을 Querydsl로 변환 가능 (단 Sort는 오류 발생)
+* EntityManager 제공
+
+**단점**
+* select로 시작할 수 없음
+* QueryFactory를 제공하지 않음
+* Sort 기능이 정상 동작하지 않음
