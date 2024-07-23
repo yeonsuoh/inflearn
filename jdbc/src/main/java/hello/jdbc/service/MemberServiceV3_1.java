@@ -55,18 +55,4 @@ public class MemberServiceV3_1 {
             throw new IllegalStateException("이체중 예외 발생");
         }
     }
-
-    private static void release(Connection con) {
-        if (con != null) {
-            try {
-                con.setAutoCommit(true); // 커넥션 풀 고려
-                // 커넥션 풀을 사용하면 커넥션이 종료되는 것이 아니라 풀에 반납됨
-                // 현재 수동 커밋 모드로 동작하기 때문에 돌려주기 전에 기본 값인 자동 커밋 모드로 변경하는 것이 안전함
-                // (보통은 직접 하지 않고 프레임워크가 하지만 ... 이렇게 직접 사용할 때 주의해야)
-                con.close();
-            } catch (Exception e) {
-                log.info("error", e);
-            }
-        }
-    }
 }
