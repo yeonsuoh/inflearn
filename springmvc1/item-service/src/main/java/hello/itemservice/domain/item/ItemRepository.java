@@ -13,7 +13,7 @@ public class ItemRepository {
     private static final Map<Long, Item> store = new HashMap<>();
     private static long sequence = 0L;
 
-    public Item Save(Item item) {
+    public Item save(Item item) {
         item.setId(++sequence);
         store.put(item.getId(), item);
         return item;
